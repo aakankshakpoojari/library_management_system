@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>edit</title>
+    <link rel="stylesheet" href="/style.css">
+
+</head>
+<body>
+    <div class="form-box">
+        <h1>Edit book <%= book.title %></h1>
+        <form class="formwal" action="/books/edit/<%= book.id %>" method="post">
+            <input type="text" name="id" value="<%= book.id %>" disabled>
+            <input type="text" name="title" value="<%= book.title %>" >
+            <input type="text" name="author" value="<%= book.author %>" >
+            <input type="number" name="quantity" value="<%= book.quantity %>" >
+            <button type="submit">Edit</button>
+        </form>
+    </div>
+</body>
+</html>

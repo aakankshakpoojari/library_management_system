@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Library</h2>
+        <a href="/dashboard">dashboard</a>
+        <a href="/books">books</a>
+        <a href="">borrowed books</a>
+        <a href="">students</a>
+        <a href="/logout">logout</a>
+    </div>
+    <div class="main">
+        <h1>Welcome <%= librarian.name %></h1>
+        <div class="cards">
+            <div class="card">
+                <h2><%= totalBooks %></h2>
+                <p>Total books</p>
+            </div>
+            <div class="card">
+                <h2><%= totalBorrowed %></h2>
+                <p>Total Borrowed</p>
+            </div>
+            <div class="card">
+                <h2><%= totalVisits %></h2>
+                <p>Total visits</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
