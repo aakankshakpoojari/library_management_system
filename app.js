@@ -104,10 +104,90 @@ app.post("/books/edit/:id",(req,res)=>{
     const quantity=req.body.quantity;
 
     db.run(`update books set title=? , author=? , quantity=? where id=?`,[title,author,quantity,req.params.id],(err)=>{
-        if(!err) response.redirect('/books');
+        if(!err) res.redirect('/books');
     })
 })
 
+app.get("/borrowedBooks", (req, res) => {
+
+    db.all(
+        `SELECT
+            BorrowedBooks.*,
+            Books.title
+         FROM BorrowedBooks
+         JOIN Books
+         ON BorrowedBooks.bookid = Books.id`,
+        (err, borrowedBooks) => {
+
+            if (err) {
+                return res.send("Error fetching borrowed books");
+            }
+
+            let dueToday = 0;
+            let overdueBooks = 0;
+            let returnedBooks = 0;
+
+            const today = new Date().toISOString().split("T")[0];
+
+            borrowedBooks.forEach(book => {
+
+                if (book.status === "Returned") {
+                    returnedBooks++;
+                }
+
+                if (book.return_date === today) {
+                    dueToday++;
+                }
+
+                if (
+                    book.return_date < today &&
+                    book.status !== "Returned"
+                ) {
+                    overdueBooks++;
+                }
+            });
+
+            res.render("borrowedBooks", {
+                borrowedBooks,
+                totalBorrowed: borrowedBooks.length,
+                dueToday,
+                overdueBooks,
+                returnedBooks
+            });
+        }
+    );
+
+});
+app.get("/borrowedBooks/search", (req, res) => {
+
+    const title = `%${req.query.title}%`;
+
+    db.all(
+        `
+        SELECT
+            BORROWEDBOOKS.*,
+            BOOKS.title
+        FROM BORROWEDBOOKS
+        JOIN BOOKS
+        ON BORROWEDBOOKS.bookid = BOOKS.id
+        WHERE BOOKS.title LIKE ?
+        `,
+        [title],
+        (err, borrowedBooks) => {
+
+            if (err) {
+                console.log(err);
+                return res.send("Search failed");
+            }
+
+            res.render("search", {
+                borrowedBooks
+            });
+
+        }
+    );
+
+});
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {
         return res.redirect('/');

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowed Books</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div class="main-page">
+
+        <h1>Borrowed Books</h1>
+
+      
+        <div class="cards">
+            <div class="card">
+                <h2><%= totalBorrowed %></h2>
+                <p>Total Borrowed</p>
+            </div>
+
+            <div class="card">
+                <h2><%= dueToday %></h2>
+                <p>Due Today</p>
+            </div>
+
+            <div class="card">
+                <h2><%= overdueBooks %></h2>
+                <p>Overdue</p>
+            </div>
+
+            <div class="card">
+                <h2><%= returnedBooks %></h2>
+                <p>Returned</p>
+            </div>
+        </div>
+
+        <br>
+
+        <form action="/borrowedBooks/search" method="GET">
+            <input
+                type="text"
+                name="title"
+                placeholder="Search Book Title"
+            >
+            <button type="submit">Search</button>
+        </form>
+
+        <br>
+
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>USN</th>
+                <th>Book ID</th>
+                <th>Borrowed Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+
+            <% borrowedBooks.forEach(book => { %>
+                <tr>
+                    <td><%= book.title %></td>
+                    <td><%= book.usn %></td>
+                    <td><%= book.book_id %></td>
+                    <td><%= book.borrowed_date %></td>
+                    <td><%= book.return_date %></td>
+
+                    <td>
+                        <% if(book.status === "Overdue"){ %>
+                             Overdue
+                        <% } else if(book.status === "Returned"){ %>
+                            Returned
+                        <% } else { %>
+                            Borrowed
+                        <% } %>
+                    </td>
+
+                    <td>
+                        <a href="/borrowedBooks/edit/<%= book.id %>">
+                            Edit
+                        </a>
+
+                        |
+
+                        <form
+                            action="/borrowedBooks/return/<%= book.id %>"
+                            method="POST"
+                            style="display:inline;"
+                        >
+                            <button type="submit">
+                                Return
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+
+        </table>
+
+    </div>
+
+</body>
+</html>

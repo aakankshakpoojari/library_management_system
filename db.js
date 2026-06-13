@@ -2,23 +2,23 @@ const sqlite3 = require("sqlite3");
 
 const db = new sqlite3.Database("library.db", (err) => {
     if (err) {
-        console.log(err);
+        console.log(err.message);
     } else {
-        console.log("DB connected");
+        console.log("Database connected");
     }
 });
 
 db.serialize(() => {
-
     db.run(`
         CREATE TABLE IF NOT EXISTS LIBRARIANS(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            email TEXT UNIQUE,
+            email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )
     `);
 
+    
     db.run(`
         CREATE TABLE IF NOT EXISTS STUDENTS(
             usn TEXT PRIMARY KEY,
@@ -32,8 +32,7 @@ db.serialize(() => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             author TEXT NOT NULL,
-            quantity INTEGER DEFAULT 0,
-            UNIQUE(title, author)
+            quantity INTEGER DEFAULT 0
         )
     `);
 
@@ -42,9 +41,11 @@ db.serialize(() => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             usn TEXT,
             bookid INTEGER,
-            borrow_date DATE,
-            return_date DATE,
-            status TEXT
+            borrow_date TEXT,
+            return_date TEXT,
+            status TEXT,
+            FOREIGN KEY(usn) REFERENCES STUDENTS(usn),
+            FOREIGN KEY(bookid) REFERENCES BOOKS(id)
         )
     `);
 
@@ -54,21 +55,19 @@ db.serialize(() => {
             usn TEXT,
             entry_time TEXT,
             exit_time TEXT,
-            duration TEXT
+            duration TEXT,
+            FOREIGN KEY(usn) REFERENCES STUDENTS(usn)
         )
     `);
-
+/*
     db.run(`
-        INSERT OR IGNORE INTO LIBRARIANS(name,email,password)
+        INSERT INTO LIBRARIANS(name,email,password)
         VALUES
-        ('Atharva Joshi','atharva@gmail.com','pass123'),
-        ('Ananya Shetty','ananya@gmail.com','lib123'),
-        ('Rahul Kumar','rahul@gmail.com','admin123'),
-        ('Sneha Rao','sneha@gmail.com','sneha123')
+        ('Aakanksha Poojari','aak@gmail.com','1234')
     `);
 
     db.run(`
-        INSERT OR IGNORE INTO STUDENTS
+        INSERT INTO STUDENTS(usn,name,branch)
         VALUES
         ('NNM24CS001','Aditya Karkera','CSE'),
         ('NNM24CS002','Atmika Nayak','CSE'),
@@ -79,7 +78,7 @@ db.serialize(() => {
     `);
 
     db.run(`
-        INSERT OR IGNORE INTO BOOKS(title,author,quantity)
+        INSERT INTO BOOKS(title,author,quantity)
         VALUES
         ('Clean Code','Robert C. Martin',5),
         ('Introduction to Algorithms','Thomas H. Cormen',3),
@@ -89,24 +88,24 @@ db.serialize(() => {
     `);
 
     db.run(`
-        INSERT OR IGNORE INTO BORROWEDBOOKS
+        INSERT INTO BORROWEDBOOKS
         (usn,bookid,borrow_date,return_date,status)
         VALUES
-        ('NNM24CS001',1,'2025-06-01','2025-06-15','Returned'),
-        ('NNM24CS002',3,'2025-06-03','2025-06-17','Borrowed'),
-        ('NNM24CS004',2,'2025-06-05','2025-06-19','Borrowed')
+        ('NNM24CS001',1,'2026-06-01','2026-06-16','Returned'),
+        ('NNM24CS002',3,'2026-06-05','2026-06-20','Borrowed'),
+        ('NNM24CS004',2,'2026-06-07','2026-06-22','Borrowed')
     `);
 
     db.run(`
-        INSERT OR IGNORE INTO LIBRARYVISITS
+        INSERT INTO LIBRARYVISITS
         (usn,entry_time,exit_time,duration)
         VALUES
         ('NNM24CS001','09:00','11:00','2 Hours'),
         ('NNM24CS002','10:30','12:00','1.5 Hours'),
         ('NNM24CS003','08:45','10:15','1.5 Hours')
-    `);
+    `);*/
 
-    console.log("Database initialized");
+    console.log("Database initialized successfully");
 });
 
 module.exports = db;

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div class="main-page">
+
+        <h1>Search Results</h1>
+
+        <a href="/borrowedBooks">← Back to Borrowed Books</a>
+
+        <br><br>
+
+        <% if (borrowedBooks.length === 0) { %>
+
+            <p>No matching books found.</p>
+
+        <% } else { %>
+
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>USN</th>
+                    <th>Book ID</th>
+                    <th>Borrow Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+
+                <% borrowedBooks.forEach(book => { %>
+
+                    <tr>
+                        <td><%= book.title %></td>
+                        <td><%= book.usn %></td>
+                        <td><%= book.bookid %></td>
+                        <td><%= book.borrow_date %></td>
+                        <td><%= book.return_date %></td>
+
+                        <td>
+                            <% if(book.status === "Overdue"){ %>
+                                Overdue
+                            <% } else if(book.status === "Returned"){ %>
+                                Returned
+                            <% } else { %>
+                                Borrowed
+                            <% } %>
+                        </td>
+
+                        <td>
+                            <a href="/borrowedBooks/edit/<%= book.id %>">
+                                Edit
+                            </a>
+
+                            |
+
+                            <form
+                                action="/borrowedBooks/return/<%= book.id %>"
+                                method="POST"
+                                style="display:inline;"
+                            >
+                                <button type="submit">
+                                    Return
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                <% }) %>
+
+            </table>
+
+        <% } %>
+
+    </div>
+
+</body>
+</html>
