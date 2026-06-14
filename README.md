@@ -57,7 +57,7 @@ This project allows librarians to manage books, students, borrowed books, and li
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/aakankshakpoojari/library_management_system.git
 cd library-management-system
 ```
 
