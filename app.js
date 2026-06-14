@@ -461,7 +461,8 @@ app.get("/logout", (req, res) => {
         return res.redirect('/');
     });
 });
+const PORT = process.env.PORT || 3000;
 
-app.listen(5000, () => {
-    console.log("Running");
+app.listen(PORT,()=>{
+    console.log(`Running on ${PORT}`);
 });
