@@ -188,6 +188,274 @@ app.get("/borrowedBooks/search", (req, res) => {
     );
 
 });
+
+app.get("/students",(req,res)=>{
+    db.all(`select * from students`,(err,rows)=>{
+        if(!err) res.render("students",{students:rows})
+            else res.send("Error finding students");
+    })
+})
+
+app.get("/borrowBook",(req,res)=>{
+    res.render("borrowBook");
+});
+
+app.post("/borrowBook", (req, res) => {
+
+    const usn = req.body.usn;
+    const bookid = req.body.bookid;
+
+    db.get(
+        `SELECT * FROM STUDENTS WHERE usn = ?`,
+        [usn],
+        (err, student) => {
+
+            if (!student) {
+                return res.send("Student not found");
+            }
+
+            db.get(
+                `SELECT * FROM BOOKS WHERE id = ?`,
+                [bookid],
+                (err, book) => {
+
+                    if (!book) {
+                        return res.send("Book not found");
+                    }
+
+                    if (book.quantity <= 0) {
+                        return res.send("Book out of stock");
+                    }
+
+                    const today = new Date();
+
+                    const borrowDate =
+                        today.toISOString().split("T")[0];
+
+                    const returnDateObj = new Date(today);
+                    returnDateObj.setDate(
+                        returnDateObj.getDate() + 15
+                    );
+
+                    const returnDate =
+                        returnDateObj.toISOString().split("T")[0];
+
+                    db.run(
+                        `
+                        INSERT INTO BORROWEDBOOKS
+                        (usn, bookid, borrow_date, return_date, status)
+                        VALUES (?, ?, ?, ?, ?)
+                        `,
+                        [
+                            usn,
+                            bookid,
+                            borrowDate,
+                            returnDate,
+                            "Borrowed"
+                        ],
+                        (err) => {
+
+                            if (err) {
+                                console.log(err);
+                                return res.send("Borrow failed");
+                            }
+
+                            db.run(
+                                `
+                                UPDATE BOOKS
+                                SET quantity = quantity - 1
+                                WHERE id = ?
+                                `,
+                                [bookid],
+                                (err) => {
+
+                                    if (err) {
+                                        console.log(err);
+                                        return res.send("Book update failed");
+                                    }
+
+                                    res.redirect("/borrowedBooks");
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
+
+app.post("/borrowedBooks/return/:id", (req, res) => {
+
+    const borrowId = req.params.id;
+
+    db.get(
+        `SELECT * FROM BORROWEDBOOKS WHERE id = ?`,
+        [borrowId],
+        (err, record) => {
+
+            if (err || !record) {
+                return res.send("Record not found");
+            }
+
+            if (record.status === "Returned") {
+                return res.redirect("/borrowedBooks");
+            }
+
+            db.run(
+                `UPDATE BORROWEDBOOKS
+                 SET status = 'Returned'
+                 WHERE id = ?`,
+                [borrowId],
+                (err) => {
+
+                    if (err) {
+                        return res.send("Could not update status");
+                    }
+
+                    db.run(
+                        `UPDATE BOOKS
+                         SET quantity = quantity + 1
+                         WHERE id = ?`,
+                        [record.bookid],
+                        (err) => {
+
+                            if (err) {
+                                return res.send("Could not update quantity");
+                            }
+
+                            res.redirect("/borrowedBooks");
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
+
+app.get("/students/add", (req, res) => {
+    res.render("addStudent");
+});
+
+app.post("/students/add", (req, res) => {
+
+    const { usn, name, branch } = req.body;
+
+    db.run(
+        `
+        INSERT INTO STUDENTS
+        (usn, name, branch)
+        VALUES (?, ?, ?)
+        `,
+        [usn, name, branch],
+        (err) => {
+
+            if (err) {
+                console.log(err);
+                return res.send("Could not add student");
+            }
+
+            res.redirect("/students");
+        }
+    );
+
+});
+
+app.get("/visits",(req,res)=>{
+
+    db.all(
+        `SELECT * FROM LIBRARYVISITS
+         ORDER BY id DESC`,
+        (err,visits)=>{
+
+            if(err){
+                return res.send("Error");
+            }
+
+            res.render("visits",{visits});
+        }
+    );
+});
+
+app.post("/visits/entry",(req,res)=>{
+
+    const usn = req.body.usn;
+
+    const now = new Date();
+
+    db.run(
+        `
+        INSERT INTO LIBRARYVISITS
+        (usn,entry_time)
+        VALUES (?,?)
+        `,
+        [usn,now.toISOString()],
+        (err)=>{
+
+            if(err){
+                console.log(err);
+            }
+
+            res.redirect("/visits");
+        }
+    );
+});
+
+app.post("/visits/exit",(req,res)=>{
+
+    const usn = req.body.usn;
+
+    db.get(
+        `
+        SELECT *
+        FROM LIBRARYVISITS
+        WHERE usn = ?
+        AND exit_time IS NULL
+        ORDER BY id DESC
+        LIMIT 1
+        `,
+        [usn],
+        (err,visit)=>{
+
+            if(!visit){
+                return res.send(
+                    "No active visit found"
+                );
+            }
+
+            const exitTime = new Date();
+
+            const entryTime =
+                new Date(visit.entry_time);
+
+            const durationMs =
+                exitTime - entryTime;
+
+            const durationMinutes =
+                Math.floor(durationMs/60000);
+
+            db.run(
+                `
+                UPDATE LIBRARYVISITS
+                SET
+                    exit_time=?,
+                    duration=?
+                WHERE id=?
+                `,
+                [
+                    exitTime.toISOString(),
+                    durationMinutes + " mins",
+                    visit.id
+                ],
+                ()=>{
+
+                    res.redirect("/visits");
+                }
+            );
+        }
+    );
+});
+
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {
         return res.redirect('/');

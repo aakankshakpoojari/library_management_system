@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Visits</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="main-page">
+
+    <h1>Library Visits</h1>
+
+    <form action="/visits/entry" method="POST">
+
+        <input
+            type="text"
+            name="usn"
+            placeholder="Enter USN"
+            required
+        >
+
+        <button type="submit">
+            Mark Entry
+        </button>
+
+    </form>
+
+    
+
+    <form action="/visits/exit" method="POST">
+
+        <input
+            type="text"
+            name="usn"
+            placeholder="Enter USN"
+            required
+        >
+
+        <button type="submit">
+            Mark Exit
+        </button>
+
+    </form>
+
+    
+
+    <table>
+
+        <tr>
+            <th>USN</th>
+            <th>Entry Time</th>
+            <th>Exit Time</th>
+            <th>Duration</th>
+            <th>Status</th>
+        </tr>
+
+        <% visits.forEach(visit => { %>
+
+        <tr>
+
+            <td><%= visit.usn %></td>
+
+            <td><%= visit.entry_time %></td>
+
+            <td>
+                <%= visit.exit_time || "-" %>
+            </td>
+
+            <td>
+                <%= visit.duration || "-" %>
+            </td>
+
+            <td>
+                <% if(visit.exit_time === null){ %>
+                    Inside
+                <% } else { %>
+                    Left
+                <% } %>
+            </td>
+
+        </tr>
+
+        <% }) %>
+
+    </table>
+
+</div>
+
+</body>
+</html>

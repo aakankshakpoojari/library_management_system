@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Book</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <div class="main-page">
+        <h1>Borrow Book</h1>
+
+        <form action="/borrowBook" method="POST">
+
+            <label>Student USN</label>
+            <input
+                type="text" placeholder="ex NNM24CS001"
+                name="usn" 
+                required
+            >
+
+
+            <label>Book ID</label>
+            <input
+                type="number"
+                name="bookid" placeholder="ex 1"
+                required
+            >
+
+        
+
+            <button type="submit">
+                Borrow
+            </button>
+
+        </form>
+    </div>
+
+</body>
+</html>
